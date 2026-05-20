@@ -143,4 +143,4 @@ Deferred (not blocking spec compliance): code signing for macOS/Windows binaries
 
 ## License
 
-TBD — add your preferred license here. The `.goreleaser.yaml` will include any file matching `LICENSE*` in the release archives automatically.
+[MIT](LICENSE) — © 2026 haivh2111.
