@@ -1,0 +1,57 @@
+package {{.PackageName}}
+
+import (
+	"context"
+
+	"gorm.io/gorm"
+)
+
+type mysqlRepo struct {
+	db *gorm.DB
+}
+
+// NewMySQLRepository returns a GORM-backed implementation of {{.EntityName}}Repository.
+func NewMySQLRepository(db *gorm.DB) {{.EntityName}}Repository {
+	return &mysqlRepo{db: db}
+}
+
+func (r *mysqlRepo) Create(ctx context.Context, m *{{.EntityName}}) error {
+	return r.db.WithContext(ctx).Create(m).Error
+}
+
+func (r *mysqlRepo) GetByID(ctx context.Context, id uint) (*{{.EntityName}}, error) {
+	var m {{.EntityName}}
+	if err := r.db.WithContext(ctx).First(&m, id).Error; err != nil {
+		return nil, err
+	}
+	return &m, nil
+}
+
+func (r *mysqlRepo) List(ctx context.Context, page, limit int) ([]{{.EntityName}}, int64, error) {
+	var (
+		items []{{.EntityName}}
+		total int64
+	)
+	q := r.db.WithContext(ctx).Model(&{{.EntityName}}{})
+	if err := q.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 {
+		limit = 20
+	}
+	if err := q.Offset((page - 1) * limit).Limit(limit).Find(&items).Error; err != nil {
+		return nil, 0, err
+	}
+	return items, total, nil
+}
+
+func (r *mysqlRepo) Update(ctx context.Context, m *{{.EntityName}}) error {
+	return r.db.WithContext(ctx).Save(m).Error
+}
+
+func (r *mysqlRepo) Delete(ctx context.Context, id uint) error {
+	return r.db.WithContext(ctx).Delete(&{{.EntityName}}{}, id).Error
+}

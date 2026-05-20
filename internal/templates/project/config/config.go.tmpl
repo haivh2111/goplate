@@ -1,0 +1,75 @@
+// Package config loads runtime configuration from environment variables
+// (optionally seeded from .env via godotenv).
+package config
+
+import (
+	"os"
+	"time"
+
+	"github.com/joho/godotenv"
+)
+
+// Config is the application's typed configuration bag.
+type Config struct {
+	AppPort string
+	AppEnv  string
+
+	DB DBConfig
+
+	JWTSecret           string
+	JWTAccessDuration   time.Duration
+	JWTRefreshDuration  time.Duration
+}
+
+// DBConfig describes the database connection.
+type DBConfig struct {
+	Driver   string
+	Host     string
+	Port     string
+	User     string
+	Password string
+	Name     string
+	Path     string // sqlite only
+}
+
+// Load reads .env if present, then constructs a Config from env vars.
+func Load() (*Config, error) {
+	_ = godotenv.Load() // .env is optional
+
+	cfg := &Config{
+		AppPort: getenv("APP_PORT", "8080"),
+		AppEnv:  getenv("APP_ENV", "development"),
+		DB: DBConfig{
+			Driver:   "{{.DBDriver}}",
+			Host:     getenv("DB_HOST", "localhost"),
+			Port:     getenv("DB_PORT", "{{if eq .DBDriver "postgres"}}5432{{else}}3306{{end}}"),
+			User:     getenv("DB_USER", "{{if eq .DBDriver "postgres"}}postgres{{else}}root{{end}}"),
+			Password: os.Getenv("DB_PASSWORD"),
+			Name:     getenv("DB_NAME", "{{.ProjectName}}"),
+			Path:     getenv("DB_PATH", "app.db"),
+		},
+		JWTSecret:          getenv("JWT_SECRET", "change-me-in-production"),
+		JWTAccessDuration:  parseDuration("JWT_ACCESS_DURATION", 15*time.Minute),
+		JWTRefreshDuration: parseDuration("JWT_REFRESH_DURATION", 168*time.Hour),
+	}
+	return cfg, nil
+}
+
+func getenv(key, fallback string) string {
+	if v, ok := os.LookupEnv(key); ok && v != "" {
+		return v
+	}
+	return fallback
+}
+
+func parseDuration(key string, fallback time.Duration) time.Duration {
+	v := os.Getenv(key)
+	if v == "" {
+		return fallback
+	}
+	d, err := time.ParseDuration(v)
+	if err != nil {
+		return fallback
+	}
+	return d
+}

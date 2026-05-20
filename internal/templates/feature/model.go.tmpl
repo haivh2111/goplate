@@ -1,0 +1,17 @@
+package {{.PackageName}}
+
+import (
+{{- if .HasTimeField}}
+	"time"
+{{- end}}
+
+	"gorm.io/gorm"
+)
+
+// {{.EntityName}} is the GORM model for the {{.PackageName}} feature.
+type {{.EntityName}} struct {
+	gorm.Model
+{{- range .Fields}}
+	{{.Name}} {{.GoType}} `{{.GORMTag}}`
+{{- end}}
+}

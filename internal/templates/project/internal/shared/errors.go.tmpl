@@ -1,0 +1,35 @@
+package shared
+
+import (
+	"fmt"
+	"net/http"
+)
+
+// AppError is the typed error services return. The middleware error handler
+// maps it to an HTTP status + JSON body.
+type AppError struct {
+	Code    int    // HTTP status
+	Message string // user-facing message
+}
+
+func (e *AppError) Error() string { return e.Message }
+
+// ErrNotFound returns a 404 AppError for "kind id".
+func ErrNotFound(kind string, id any) error {
+	return &AppError{Code: http.StatusNotFound, Message: fmt.Sprintf("%s %v not found", kind, id)}
+}
+
+// ErrBadRequest returns a 400 AppError.
+func ErrBadRequest(msg string) error {
+	return &AppError{Code: http.StatusBadRequest, Message: msg}
+}
+
+// ErrForbidden returns a 403 AppError.
+func ErrForbidden(msg string) error {
+	return &AppError{Code: http.StatusForbidden, Message: msg}
+}
+
+// ErrConflict returns a 409 AppError.
+func ErrConflict(msg string) error {
+	return &AppError{Code: http.StatusConflict, Message: msg}
+}

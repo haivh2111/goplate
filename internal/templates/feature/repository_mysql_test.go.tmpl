@@ -1,0 +1,23 @@
+package {{.PackageName}}
+
+import "testing"
+
+// TestNewMySQLRepository is a placeholder. Replace with an integration test
+// that opens a real DB (SQLite in-memory recommended):
+//
+//	import (
+//	    "gorm.io/driver/sqlite"
+//	    "gorm.io/gorm"
+//	)
+//
+//	func newTestDB(t *testing.T) *gorm.DB {
+//	    db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+//	    if err != nil { t.Fatal(err) }
+//	    if err := db.AutoMigrate(&{{.EntityName}}{}); err != nil { t.Fatal(err) }
+//	    return db
+//	}
+//
+// and exercise Create / GetByID / List / Update / Delete against it.
+func TestNewMySQLRepository(t *testing.T) {
+	t.Skip("repository integration test — implement with SQLite in-memory (see file comment)")
+}

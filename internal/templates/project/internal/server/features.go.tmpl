@@ -1,0 +1,15 @@
+package server
+
+import "github.com/labstack/echo/v4"
+
+// RegisterFeatures wires every feature's HTTP routes under api.
+//
+// `goplate new-feature` will print instructions to add a line like:
+//
+//	product.Register(api, p)
+//
+// to this function.
+func RegisterFeatures(api *echo.Group, p *Providers) {
+	_ = api
+	_ = p
+}

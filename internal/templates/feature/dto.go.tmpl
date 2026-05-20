@@ -1,0 +1,40 @@
+package {{.PackageName}}
+
+import "time"
+
+// Create{{.EntityName}}Request is the JSON body for POST /api/{{.RoutePath}}.
+type Create{{.EntityName}}Request struct {
+{{- range .Fields}}
+	{{.Name}} {{.GoType}} `json:"{{.JSONName}}"{{if .ValidatorTag}} {{.ValidatorTag}}{{end}}`
+{{- end}}
+}
+
+// Update{{.EntityName}}Request is the JSON body for PATCH /api/{{.RoutePath}}/:id.
+// All fields are optional pointers — only non-nil fields are applied.
+type Update{{.EntityName}}Request struct {
+{{- range .Fields}}
+	{{.Name}} *{{.GoType}} `json:"{{.JSONName}},omitempty"`
+{{- end}}
+}
+
+// {{.EntityName}}Response is the API representation of {{.EntityName}}.
+type {{.EntityName}}Response struct {
+	ID uint `json:"id"`
+{{- range .Fields}}
+	{{.Name}} {{.GoType}} `json:"{{.JSONName}}"`
+{{- end}}
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+// ToResponse converts a {{.EntityName}} model into its API response shape.
+func ToResponse(m *{{.EntityName}}) *{{.EntityName}}Response {
+	return &{{.EntityName}}Response{
+		ID: m.ID,
+{{- range .Fields}}
+		{{.Name}}: m.{{.Name}},
+{{- end}}
+		CreatedAt: m.CreatedAt,
+		UpdatedAt: m.UpdatedAt,
+	}
+}

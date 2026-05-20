@@ -1,0 +1,13 @@
+package server
+
+// RegisterSubscribers wires every feature's event-bus subscribers.
+//
+// `goplate new-event ... --subscriber <feature>` will create the subscribers.go
+// in your feature; add a line like:
+//
+//	notification.RegisterSubscribers(p)
+//
+// to this function.
+func RegisterSubscribers(p *Providers) {
+	_ = p
+}

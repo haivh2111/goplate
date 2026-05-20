@@ -1,0 +1,13 @@
+package {{.PackageName}}
+
+import "context"
+
+// {{.EntityName}}Service is the business-logic boundary for the
+// {{.PackageName}} feature. Handlers depend on this interface, not the impl.
+type {{.EntityName}}Service interface {
+	Create(ctx context.Context, req Create{{.EntityName}}Request) (*{{.EntityName}}Response, error)
+	GetByID(ctx context.Context, id uint) (*{{.EntityName}}Response, error)
+	List(ctx context.Context, page, limit int) (items []{{.EntityName}}Response, total int64, err error)
+	Update(ctx context.Context, id uint, req Update{{.EntityName}}Request) (*{{.EntityName}}Response, error)
+	Delete(ctx context.Context, id uint) error
+}

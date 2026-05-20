@@ -1,0 +1,22 @@
+package {{.Provider}}
+
+import (
+	"{{.ModulePath}}/internal/adapters/{{.Service}}"
+{{range $pkg := .RequiredImports}}	"{{$pkg}}"
+{{end}})
+
+// {{.Provider}}Adapter is the {{.Provider}} implementation of
+// {{.Service}}.{{.ServicePascal}}Gateway. Add configuration fields (API keys,
+// HTTP clients, ...) as needed.
+type {{.Provider}}Adapter struct{}
+
+// NewAdapter returns a {{.Service}}.{{.ServicePascal}}Gateway backed by {{.Provider}}.
+func NewAdapter() {{.Service}}.{{.ServicePascal}}Gateway {
+	return &{{.Provider}}Adapter{}
+}
+{{range .Methods}}
+func (a *{{$.Provider}}Adapter) {{.DeclQual}} {
+	// TODO: implement {{$.Provider}} call for {{.Name}}.
+	panic("not implemented: {{$.Provider}}.{{.Name}}")
+}
+{{end}}

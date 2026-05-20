@@ -1,0 +1,15 @@
+// Package shared exposes the canonical HTTP response envelope and the typed
+// error types used across all features.
+package shared
+
+// Response is the JSON envelope returned by API handlers.
+type Response struct {
+	Data  any    `json:"data,omitempty"`
+	Error string `json:"error,omitempty"`
+}
+
+// OK builds a 200-style Response wrapping data.
+func OK(data any) Response { return Response{Data: data} }
+
+// Created builds a 201-style Response wrapping data.
+func Created(data any) Response { return Response{Data: data} }

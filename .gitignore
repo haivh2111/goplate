@@ -1,0 +1,31 @@
+# ── Build output ────────────────────────────────
+bin/
+dist/
+*.exe
+*.test
+
+# ── Test / coverage ─────────────────────────────
+coverage.out
+coverage.html
+*.prof
+
+# ── Local env files ─────────────────────────────
+# (.env may exist when smoke-testing generated projects locally)
+.env
+*.local.env
+
+# ── IDE / editor ────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── OS noise ────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Go modules / tools ──────────────────────────
+vendor/
+
+# ── Claude / agent session state (local only) ───
+.claude/

@@ -1,0 +1,8 @@
+	p.EventBus.Subscribe(events.{{.EventName}}, func(payload any) {
+		data, ok := payload.(events.{{.EventName}}Payload)
+		if !ok {
+			return
+		}
+		// TODO: handle {{.EventName}}
+		_ = data
+	})

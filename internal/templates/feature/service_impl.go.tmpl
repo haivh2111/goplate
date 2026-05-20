@@ -1,0 +1,81 @@
+package {{.PackageName}}
+
+import (
+	"context"
+	"errors"
+
+	"gorm.io/gorm"
+
+	"{{.ModulePath}}/internal/shared"
+)
+
+type service struct {
+	repo {{.EntityName}}Repository
+}
+
+// NewService wires the {{.PackageName}} business logic on top of repo.
+func NewService(repo {{.EntityName}}Repository) {{.EntityName}}Service {
+	return &service{repo: repo}
+}
+
+func (s *service) Create(ctx context.Context, req Create{{.EntityName}}Request) (*{{.EntityName}}Response, error) {
+	m := &{{.EntityName}}{
+{{- range .Fields}}
+		{{.Name}}: req.{{.Name}},
+{{- end}}
+	}
+	if err := s.repo.Create(ctx, m); err != nil {
+		return nil, err
+	}
+	return ToResponse(m), nil
+}
+
+func (s *service) GetByID(ctx context.Context, id uint) (*{{.EntityName}}Response, error) {
+	m, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, shared.ErrNotFound("{{.PackageName}}", id)
+		}
+		return nil, err
+	}
+	return ToResponse(m), nil
+}
+
+func (s *service) List(ctx context.Context, page, limit int) ([]{{.EntityName}}Response, int64, error) {
+	items, total, err := s.repo.List(ctx, page, limit)
+	if err != nil {
+		return nil, 0, err
+	}
+	out := make([]{{.EntityName}}Response, len(items))
+	for i := range items {
+		out[i] = *ToResponse(&items[i])
+	}
+	return out, total, nil
+}
+
+func (s *service) Update(ctx context.Context, id uint, req Update{{.EntityName}}Request) (*{{.EntityName}}Response, error) {
+	m, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, shared.ErrNotFound("{{.PackageName}}", id)
+		}
+		return nil, err
+	}
+{{range .Fields}}	if req.{{.Name}} != nil {
+		m.{{.Name}} = *req.{{.Name}}
+	}
+{{end}}	if err := s.repo.Update(ctx, m); err != nil {
+		return nil, err
+	}
+	return ToResponse(m), nil
+}
+
+func (s *service) Delete(ctx context.Context, id uint) error {
+	if _, err := s.repo.GetByID(ctx, id); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return shared.ErrNotFound("{{.PackageName}}", id)
+		}
+		return err
+	}
+	return s.repo.Delete(ctx, id)
+}

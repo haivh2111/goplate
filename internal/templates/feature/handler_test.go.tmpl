@@ -1,0 +1,92 @@
+package {{.PackageName}}
+
+import (
+	"context"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
+
+	"github.com/labstack/echo/v4"
+)
+
+// fakeService is a hand-rolled in-memory {{.EntityName}}Service for handler tests.
+type fakeService struct {
+	created bool
+	listErr error
+}
+
+func (f *fakeService) Create(_ context.Context, _ Create{{.EntityName}}Request) (*{{.EntityName}}Response, error) {
+	f.created = true
+	return &{{.EntityName}}Response{ID: 1}, nil
+}
+func (f *fakeService) GetByID(_ context.Context, _ uint) (*{{.EntityName}}Response, error) {
+	return &{{.EntityName}}Response{ID: 1}, nil
+}
+func (f *fakeService) List(_ context.Context, _, _ int) ([]{{.EntityName}}Response, int64, error) {
+	return []{{.EntityName}}Response{}, 0, f.listErr
+}
+func (f *fakeService) Update(_ context.Context, _ uint, _ Update{{.EntityName}}Request) (*{{.EntityName}}Response, error) {
+	return &{{.EntityName}}Response{ID: 1}, nil
+}
+func (f *fakeService) Delete(_ context.Context, _ uint) error { return nil }
+
+// noopValidator satisfies echo's c.Validate without doing anything.
+type noopValidator struct{}
+
+func (noopValidator) Validate(_ any) error { return nil }
+
+func newTestEcho() *echo.Echo {
+	e := echo.New()
+	e.Validator = noopValidator{}
+	return e
+}
+
+func TestHandler_List(t *testing.T) {
+	e := newTestEcho()
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	h := NewHandler(&fakeService{})
+	if err := h.List(c); err != nil {
+		t.Fatalf("List: %v", err)
+	}
+	if rec.Code != http.StatusOK {
+		t.Errorf("status = %d, want 200", rec.Code)
+	}
+}
+
+func TestHandler_Create(t *testing.T) {
+	e := newTestEcho()
+	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(`{}`))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	svc := &fakeService{}
+	h := NewHandler(svc)
+	if err := h.Create(c); err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+	if !svc.created {
+		t.Error("service.Create not called")
+	}
+	if rec.Code != http.StatusCreated {
+		t.Errorf("status = %d, want 201", rec.Code)
+	}
+}
+
+func TestHandler_GetByID_InvalidParam(t *testing.T) {
+	e := newTestEcho()
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues("not-a-number")
+
+	h := NewHandler(&fakeService{})
+	if err := h.GetByID(c); err == nil {
+		t.Fatal("expected error for invalid id")
+	}
+}

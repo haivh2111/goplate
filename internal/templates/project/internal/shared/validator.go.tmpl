@@ -1,0 +1,9 @@
+package shared
+
+// Validator is a minimal placeholder satisfying echo.Validator.
+// Replace with a go-playground/validator binding when you adopt struct tags.
+type Validator struct{}
+
+// Validate is a no-op for the starter template — wire up
+// github.com/go-playground/validator/v10 here when needed.
+func (Validator) Validate(_ any) error { return nil }

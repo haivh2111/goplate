@@ -1,0 +1,150 @@
+package {{.PackageName}}
+
+import (
+	"net/http"
+	"strconv"
+
+	"github.com/labstack/echo/v4"
+
+	"{{.ModulePath}}/internal/shared"
+)
+
+// Handler exposes the {{.PackageName}} feature over HTTP.
+type Handler struct {
+	svc {{.EntityName}}Service
+}
+
+// NewHandler builds a Handler bound to svc.
+func NewHandler(svc {{.EntityName}}Service) *Handler {
+	return &Handler{svc: svc}
+}
+
+// List returns a {{if .NoPagination}}list{{else}}paginated list{{end}} of {{.EntityPlural}}.
+// @Summary      List {{.EntityPlural}}
+// @Tags         {{.PackageName}}
+// @Produce      json
+{{- if not .NoPagination}}
+// @Param        page   query  int  false  "Page number (default 1)"
+// @Param        limit  query  int  false  "Page size (default 20)"
+{{- end}}
+// @Success      200  {object}  shared.Response
+// @Router       /api/{{.RoutePath}} [get]
+func (h *Handler) List(c echo.Context) error {
+{{- if .NoPagination}}
+	items, _, err := h.svc.List(c.Request().Context(), 1, 0)
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, shared.OK(items))
+{{- else}}
+	page, _ := strconv.Atoi(c.QueryParam("page"))
+	limit, _ := strconv.Atoi(c.QueryParam("limit"))
+	items, total, err := h.svc.List(c.Request().Context(), page, limit)
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, shared.OK(map[string]any{
+		"items": items,
+		"total": total,
+		"page":  page,
+		"limit": limit,
+	}))
+{{- end}}
+}
+
+// Create persists a new {{.EntityName}}.
+// @Summary      Create {{.EntityName}}
+// @Tags         {{.PackageName}}
+// @Accept       json
+// @Produce      json
+// @Param        body  body  Create{{.EntityName}}Request  true  "Payload"
+// @Success      201  {object}  shared.Response
+// @Failure      400  {object}  shared.Response
+// @Router       /api/{{.RoutePath}} [post]
+func (h *Handler) Create(c echo.Context) error {
+	var req Create{{.EntityName}}Request
+	if err := c.Bind(&req); err != nil {
+		return shared.ErrBadRequest(err.Error())
+	}
+	if err := c.Validate(&req); err != nil {
+		return shared.ErrBadRequest(err.Error())
+	}
+	res, err := h.svc.Create(c.Request().Context(), req)
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusCreated, shared.Created(res))
+}
+
+// GetByID returns a single {{.EntityName}} by ID.
+// @Summary      Get {{.EntityName}} by ID
+// @Tags         {{.PackageName}}
+// @Produce      json
+// @Param        id   path  int  true  "ID"
+// @Success      200  {object}  shared.Response
+// @Failure      404  {object}  shared.Response
+// @Router       /api/{{.RoutePath}}/{id} [get]
+func (h *Handler) GetByID(c echo.Context) error {
+	id, err := parseIDParam(c)
+	if err != nil {
+		return err
+	}
+	res, err := h.svc.GetByID(c.Request().Context(), id)
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, shared.OK(res))
+}
+
+// Update mutates an existing {{.EntityName}}.
+// @Summary      Update {{.EntityName}}
+// @Tags         {{.PackageName}}
+// @Accept       json
+// @Produce      json
+// @Param        id    path  int  true  "ID"
+// @Param        body  body  Update{{.EntityName}}Request  true  "Patch"
+// @Success      200  {object}  shared.Response
+// @Failure      404  {object}  shared.Response
+// @Router       /api/{{.RoutePath}}/{id} [patch]
+func (h *Handler) Update(c echo.Context) error {
+	id, err := parseIDParam(c)
+	if err != nil {
+		return err
+	}
+	var req Update{{.EntityName}}Request
+	if err := c.Bind(&req); err != nil {
+		return shared.ErrBadRequest(err.Error())
+	}
+	res, err := h.svc.Update(c.Request().Context(), id, req)
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, shared.OK(res))
+}
+
+// Delete removes a {{.EntityName}}.
+// @Summary      Delete {{.EntityName}}
+// @Tags         {{.PackageName}}
+// @Param        id   path  int  true  "ID"
+// @Success      204
+// @Failure      404  {object}  shared.Response
+// @Router       /api/{{.RoutePath}}/{id} [delete]
+func (h *Handler) Delete(c echo.Context) error {
+	id, err := parseIDParam(c)
+	if err != nil {
+		return err
+	}
+	if err := h.svc.Delete(c.Request().Context(), id); err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusNoContent)
+}
+
+func parseIDParam(c echo.Context) (uint, error) {
+	raw := c.Param("id")
+	id, err := strconv.ParseUint(raw, 10, 64)
+	if err != nil {
+		return 0, shared.ErrBadRequest("invalid id")
+	}
+	return uint(id), nil
+}

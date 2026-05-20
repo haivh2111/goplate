@@ -1,0 +1,38 @@
+package {{.PackageName}}
+
+import (
+	"github.com/labstack/echo/v4"
+
+{{- if not .NoAuth}}
+	"{{.ModulePath}}/internal/middleware"
+{{- end}}
+	"{{.ModulePath}}/internal/server"
+)
+
+// Register wires the {{.PackageName}} feature: builds its dependencies from
+// the shared Providers and registers HTTP routes under api.
+//
+// Call from internal/server/server.go:
+//
+//	{{.PackageName}}.Register(api, p)
+func Register(api *echo.Group, p *server.Providers) {
+	repo := NewMySQLRepository(p.DB)
+	svc := NewService(repo)
+	h := NewHandler(svc)
+
+	g := api.Group("/{{.RoutePath}}")
+{{if .NoAuth}}
+	g.GET("", h.List)
+	g.POST("", h.Create)
+	g.GET("/:id", h.GetByID)
+	g.PATCH("/:id", h.Update)
+	g.DELETE("/:id", h.Delete)
+{{else}}
+	auth := middleware.JWT()
+	g.GET("", h.List, auth)
+	g.POST("", h.Create, auth)
+	g.GET("/:id", h.GetByID)
+	g.PATCH("/:id", h.Update, auth)
+	g.DELETE("/:id", h.Delete, auth)
+{{end}}
+}

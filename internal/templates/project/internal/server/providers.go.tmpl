@@ -1,0 +1,15 @@
+// Package server wires the HTTP layer and shares dependencies across features.
+package server
+
+import (
+	"gorm.io/gorm"
+
+	"{{.ModulePath}}/internal/events"
+)
+
+// Providers is the dependency bag passed into every feature's Register call.
+// Add adapter ports (e.g. payment.PaymentGateway) here as features need them.
+type Providers struct {
+	DB       *gorm.DB
+	EventBus *events.Bus
+}

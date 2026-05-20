@@ -1,0 +1,14 @@
+package {{.PackageName}}
+
+import "context"
+
+// {{.EntityName}}Repository is the persistence boundary for the
+// {{.PackageName}} feature. Concrete implementations live in this package
+// (e.g. repository_mysql.go) and are wired in module.go.
+type {{.EntityName}}Repository interface {
+	Create(ctx context.Context, m *{{.EntityName}}) error
+	GetByID(ctx context.Context, id uint) (*{{.EntityName}}, error)
+	List(ctx context.Context, page, limit int) (items []{{.EntityName}}, total int64, err error)
+	Update(ctx context.Context, m *{{.EntityName}}) error
+	Delete(ctx context.Context, id uint) error
+}

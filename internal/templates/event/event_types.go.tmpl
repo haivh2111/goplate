@@ -1,0 +1,15 @@
+// Package events holds domain event constants and payload structs used by
+// the in-process event bus.
+package events
+
+{{if .HasTimeField}}import "time"
+
+{{end}}// {{.EventName}} is published when {{.EventName | lower}} occurs.
+const {{.EventName}} = "{{.EventTopic}}"
+
+// {{.EventName}}Payload carries data for the {{.EventName}} event.
+type {{.EventName}}Payload struct {
+{{- range .Fields}}
+	{{.Name}} {{.GoType}}
+{{- end}}
+}

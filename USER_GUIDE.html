@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>goplate — User Guide</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117; --surface: #161b22; --surface-2: #21262d; --surface-3: #30363d;
+      --border: #30363d; --border-light: #21262d;
+      --text: #e6edf3; --text-muted: #8b949e; --text-subtle: #6e7681;
+      --accent: #58a6ff; --accent-dim: #1f6feb;
+      --green: #3fb950; --orange: #d29922; --purple: #bc8cff; --red: #f85149; --cyan: #39c5cf; --yellow: #e3b341;
+      --radius: 8px; --radius-lg: 12px;
+      --mono: 'SFMono-Regular','Consolas','Liberation Mono',monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif; font-size: 15px; line-height: 1.7; }
+
+    /* Layout */
+    .layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+    /* Sidebar */
+    .sidebar { background: var(--surface); border-right: 1px solid var(--border); position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 24px 0; }
+    .sidebar-header { padding: 0 20px 16px; border-bottom: 1px solid var(--border-light); margin-bottom: 8px; }
+    .sidebar-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
+    .logo-mark { width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent-dim), #6e40c9); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; font-family: var(--mono); color: #fff; }
+    .logo-name { font-size: 15px; font-weight: 600; }
+    .logo-meta { font-size: 11px; color: var(--text-muted); font-family: var(--mono); margin-top: 2px; }
+    .nav-group { padding: 12px 0; }
+    .nav-group-title { padding: 0 20px 6px; font-size: 11px; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+    .nav-link { display: block; padding: 6px 20px; color: var(--text-muted); text-decoration: none; font-size: 13.5px; border-left: 2px solid transparent; }
+    .nav-link:hover { color: var(--text); background: var(--surface-2); }
+    .nav-link.active { color: var(--accent); border-left-color: var(--accent); background: rgba(88,166,255,0.06); }
+
+    /* Main */
+    .main { padding: 32px 48px 80px; max-width: 920px; }
+    @media (max-width: 900px) { .main { padding: 24px 20px; } }
+
+    /* Hero */
+    .hero { padding-bottom: 24px; border-bottom: 1px solid var(--border-light); margin-bottom: 36px; }
+    .hero-badge { display: inline-block; padding: 4px 10px; background: rgba(88,166,255,0.12); color: var(--accent); border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; margin-bottom: 14px; }
+    .hero h1 { font-size: 36px; font-weight: 700; letter-spacing: -0.02em; }
+    .hero h1 span { color: var(--text-muted); font-weight: 500; }
+    .hero p { color: var(--text-muted); margin-top: 8px; font-size: 16px; }
+
+    /* Sections */
+    section { margin: 48px 0; }
+    .section-title { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.01em; }
+    .section-title .icon { font-size: 22px; }
+    .section-intro { color: var(--text-muted); margin-bottom: 20px; max-width: 720px; }
+    h3 { font-size: 16px; font-weight: 600; margin: 28px 0 10px; color: var(--text); }
+    h4 { font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 18px 0 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+    p { color: var(--text-muted); margin: 6px 0; }
+    p strong { color: var(--text); }
+    ul { margin: 8px 0 12px 22px; color: var(--text-muted); }
+    ul li { margin: 4px 0; }
+
+    code { font-family: var(--mono); font-size: 13px; background: var(--surface-2); padding: 1px 6px; border-radius: 4px; color: var(--cyan); }
+    p code, li code, td code { word-break: break-word; }
+
+    /* Code blocks */
+    pre { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; overflow-x: auto; margin: 12px 0; }
+    pre code { background: transparent; padding: 0; color: var(--text); font-size: 12.5px; line-height: 1.6; display: block; }
+    .prompt { color: var(--text-subtle); user-select: none; }
+    .cmd { color: var(--text); font-weight: 600; }
+    .flag { color: var(--orange); }
+    .arg { color: var(--cyan); }
+    .out { color: var(--text-muted); }
+    .comment { color: var(--text-subtle); font-style: italic; }
+    .kw { color: var(--purple); }
+    .type { color: var(--accent); }
+    .string { color: var(--green); }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13.5px; }
+    th, td { border-bottom: 1px solid var(--border-light); padding: 10px 12px; text-align: left; vertical-align: top; }
+    th { background: var(--surface); color: var(--text); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text-muted); }
+    td code { font-size: 12px; }
+
+    /* Callouts */
+    .callout { display: flex; gap: 12px; padding: 12px 16px; border-radius: var(--radius); margin: 14px 0; border: 1px solid; }
+    .callout-info    { background: rgba(88,166,255,0.06); border-color: rgba(88,166,255,0.3); }
+    .callout-tip     { background: rgba(63,185,80,0.06); border-color: rgba(63,185,80,0.3); }
+    .callout-warning { background: rgba(210,153,34,0.06); border-color: rgba(210,153,34,0.3); }
+    .callout-icon { font-size: 16px; flex-shrink: 0; line-height: 1.5; }
+    .callout p { color: var(--text); margin: 0; font-size: 14px; }
+    .callout strong { color: var(--text); }
+
+    /* File trees */
+    .tree { font-family: var(--mono); font-size: 12.5px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; line-height: 1.8; color: var(--text-muted); white-space: pre; overflow-x: auto; }
+    .tree .dir { color: var(--accent); }
+    .tree .file { color: var(--text); }
+    .tree .new { color: var(--green); }
+    .tree .meta { color: var(--text-subtle); }
+
+    /* Cmd cards */
+    .cmd-card { border: 1px solid var(--border); border-radius: var(--radius-lg); margin: 16px 0; overflow: hidden; }
+    .cmd-card-header { background: var(--surface); padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .cmd-card-body { padding: 14px 18px; }
+    .cmd-name { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--text); }
+    .cmd-name span { color: var(--text-subtle); font-weight: 400; }
+    .cmd-desc { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+    .cmd-syntax { font-family: var(--mono); font-size: 13px; color: var(--cyan); background: var(--surface); padding: 8px 12px; border-radius: 6px; margin-bottom: 12px; }
+
+    .footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--border-light); color: var(--text-subtle); font-size: 12px; display: flex; justify-content: space-between; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="#top" class="sidebar-logo">
+          <div class="logo-mark">gp</div>
+          <div>
+            <div class="logo-name">goplate</div>
+            <div class="logo-meta">User Guide · v1.0</div>
+          </div>
+        </a>
+      </div>
+      <nav>
+        <div class="nav-group">
+          <div class="nav-group-title">Getting started</div>
+          <a class="nav-link" href="#install">Installation</a>
+          <a class="nav-link" href="#quick-start">Quick start</a>
+          <a class="nav-link" href="#doctor">goplate doctor</a>
+        </div>
+        <div class="nav-group">
+          <div class="nav-group-title">Commands</div>
+          <a class="nav-link" href="#cmd-new">goplate new</a>
+          <a class="nav-link" href="#cmd-feature">goplate new-feature</a>
+          <a class="nav-link" href="#cmd-adapter">goplate new-adapter</a>
+          <a class="nav-link" href="#cmd-event">goplate new-event</a>
+        </div>
+        <div class="nav-group">
+          <div class="nav-group-title">DSLs</div>
+          <a class="nav-link" href="#dsl-fields">Field DSL</a>
+          <a class="nav-link" href="#dsl-methods">Methods DSL</a>
+        </div>
+        <div class="nav-group">
+          <div class="nav-group-title">Reference</div>
+          <a class="nav-link" href="#architecture">Architecture</a>
+          <a class="nav-link" href="#workflows">End-to-end workflows</a>
+          <a class="nav-link" href="#troubleshooting">Troubleshooting</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main" id="top">
+
+      <div class="hero">
+        <div class="hero-badge">📘 User Guide</div>
+        <h1>goplate <span>— a generator for Go REST APIs</span></h1>
+        <p>Bootstrap services and scaffold features, adapters, and domain events that follow Folder-by-Feature + Ports &amp; Adapters. Every generated file is wired, tested, and Swagger-annotated.</p>
+      </div>
+
+      <!-- ══ Installation ══ -->
+      <section id="install">
+        <h2 class="section-title"><span class="icon">📦</span> Installation</h2>
+        <p class="section-intro">Pick whichever install path matches your workflow. Goplate is a single static binary — no runtime dependencies.</p>
+
+        <h3>Option A — go install (recommended)</h3>
+        <pre><code><span class="prompt">$ </span><span class="cmd">go install</span> <span class="arg">github.com/haivh2111/goplate/cmd/goplate@latest</span></code></pre>
+        <p>Lands at <code>$GOPATH/bin/goplate</code>. Requires Go 1.22+.</p>
+
+        <h3>Option B — Pre-built binaries (no Go required)</h3>
+        <p>Each release ships archives for <strong>darwin</strong>, <strong>linux</strong>, and <strong>windows</strong> on both <strong>amd64</strong> and <strong>arm64</strong>. Grab yours from the <a href="https://github.com/haivh2111/goplate/releases" style="color: var(--accent)">Releases page</a>.</p>
+        <pre><code><span class="comment"># macOS Apple Silicon</span>
+<span class="prompt">$ </span><span class="cmd">curl -L</span> <span class="arg">https://github.com/haivh2111/goplate/releases/latest/download/goplate_v1.0.0_darwin_arm64.tar.gz</span> | tar xz
+<span class="prompt">$ </span><span class="cmd">sudo mv goplate /usr/local/bin/</span>
+
+<span class="comment"># Verify</span>
+<span class="prompt">$ </span><span class="cmd">goplate --version</span>
+<span class="out">goplate version v1.0.0</span></code></pre>
+
+        <h3>Option C — Build from source</h3>
+        <pre><code><span class="prompt">$ </span><span class="cmd">git clone</span> <span class="arg">https://github.com/haivh2111/goplate.git</span>
+<span class="prompt">$ </span><span class="cmd">cd goplate</span>
+<span class="prompt">$ </span><span class="cmd">make install</span>     <span class="comment"># → $GOPATH/bin/goplate</span></code></pre>
+
+        <div class="callout callout-info">
+          <span class="callout-icon">ℹ️</span>
+          <p><strong>SHA256 checksums.</strong> Every release archive on GitHub Releases is accompanied by <code>checksums.txt</code>. Always verify before extracting: <code>shasum -a 256 -c checksums.txt</code>.</p>
+        </div>
+      </section>
+
+      <!-- ══ Quick start ══ -->
+      <section id="quick-start">
+        <h2 class="section-title"><span class="icon">⚡</span> Quick start</h2>
+        <p class="section-intro">From zero to a running API with one feature, one adapter, and one domain event — in about five minutes.</p>
+
+        <pre><code><span class="comment"># 1. Verify the toolchain</span>
+<span class="prompt">$ </span><span class="cmd">goplate doctor</span>
+
+<span class="comment"># 2. Scaffold a project</span>
+<span class="prompt">$ </span><span class="cmd">goplate new</span> <span class="arg">payment-service</span> <span class="flag">--module</span> <span class="arg">github.com/acme/payment-service</span> <span class="flag">--db</span> <span class="arg">postgres</span>
+<span class="prompt">$ </span><span class="cmd">cd payment-service</span>
+
+<span class="comment"># 3. Start the database (postgres compose service)</span>
+<span class="prompt">$ </span><span class="cmd">docker compose up -d db</span>
+
+<span class="comment"># 4. Scaffold a feature: model + dto + repo + service + handler + tests</span>
+<span class="prompt">$ </span><span class="cmd">goplate new-feature</span> <span class="arg">product</span> <span class="flag">--fields</span> <span class="arg">"name:string,price:float64,active:bool"</span>
+
+<span class="comment"># 5. Wire it into server.go and migrate.go (the CLI prints the exact lines)</span>
+
+<span class="comment"># 6. Run the server with hot reload</span>
+<span class="prompt">$ </span><span class="cmd">make dev</span></code></pre>
+
+        <p>Now visit <code>http://localhost:8080/api/health</code>. Once you run <code>make swag</code>, Swagger UI is at <code>/api/docs</code>.</p>
+      </section>
+
+      <!-- ══ doctor ══ -->
+      <section id="doctor">
+        <h2 class="section-title"><span class="icon">🩺</span> goplate doctor</h2>
+        <p class="section-intro">Checks the host has every tool that goplate-generated projects expect.</p>
+        <div class="cmd-card">
+          <div class="cmd-card-body">
+            <div class="cmd-syntax">goplate doctor [--fix]</div>
+            <pre><code><span class="prompt">$ </span><span class="cmd">goplate doctor</span>
+<span class="out">  ✓  go go version go1.22.5 darwin/arm64</span>
+<span class="out">  ✓  git git version 2.43.0</span>
+<span class="out">  ✗  air not found</span>
+<span class="out">  ✓  swag swag version v1.16.2</span>
+<span class="out">  ✗  mockery not found</span>
+<span class="out">  ✓  golangci-lint golangci-lint has version 1.57.2</span>
+<span class="out">  Missing: air, mockery — run with --fix to install (where supported)</span></code></pre>
+            <p>Add <code>--fix</code> to <code>go install</code> the missing fixable tools (air, swag, mockery, golangci-lint). <code>go</code> and <code>git</code> must be installed manually.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ new ══ -->
+      <section id="cmd-new">
+        <h2 class="section-title"><span class="icon">✨</span> goplate new</h2>
+        <p class="section-intro">Materializes a complete service from the embedded boilerplate. Self-contained — no network or template-repo cloning required.</p>
+
+        <div class="cmd-card">
+          <div class="cmd-card-header">
+            <div>
+              <div class="cmd-name"><span>goplate</span> new &lt;project-name&gt;</div>
+              <div class="cmd-desc">Scaffold a new Go REST API project</div>
+            </div>
+          </div>
+          <div class="cmd-card-body">
+            <div class="cmd-syntax">goplate new &lt;project-name&gt; [--module M] [--output O] [--db DB] [--no-git] [--no-env] [--skip-tidy]</div>
+
+            <table>
+              <thead><tr><th>Flag</th><th>Default</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td><code>--module</code>, <code>-m</code></td><td><code>github.com/&lt;user&gt;/&lt;name&gt;</code></td><td>Go module path for the new project. The default uses your OS username.</td></tr>
+                <tr><td><code>--output</code>, <code>-o</code></td><td><code>./</code></td><td>Parent directory where the project is created.</td></tr>
+                <tr><td><code>--db</code></td><td><code>mysql</code></td><td>Database driver: <code>mysql</code> | <code>postgres</code> | <code>sqlite</code>.</td></tr>
+                <tr><td><code>--no-git</code></td><td><code>false</code></td><td>Skip <code>git init</code> + initial commit.</td></tr>
+                <tr><td><code>--no-env</code></td><td><code>false</code></td><td>Skip copying <code>.env.example</code> → <code>.env</code>.</td></tr>
+                <tr><td><code>--skip-tidy</code></td><td><code>false</code></td><td>Skip <code>go mod tidy</code> (use when offline; you'll need to run it manually before <code>make dev</code>).</td></tr>
+              </tbody>
+            </table>
+
+            <h4>Example</h4>
+            <pre><code><span class="prompt">$ </span><span class="cmd">goplate new</span> <span class="arg">payment-service</span> <span class="flag">--module</span> <span class="arg">github.com/acme/payment-service</span> <span class="flag">--db</span> <span class="arg">postgres</span>
+<span class="out">  ✓  Rendering template…</span>
+<span class="out">  ✓  Replacing module path → github.com/acme/payment-service</span>
+<span class="out">  ✓  Writing 22 files</span>
+<span class="out">  ✓  Copying .env.example → .env</span>
+<span class="out">  ✓  git init + initial commit</span>
+<span class="out">  ✓  go mod tidy</span>
+<span class="out"></span>
+<span class="out">  Project ready at ./payment-service</span>
+<span class="out">  Next: edit .env, then run  make dev</span></code></pre>
+
+            <h4>What gets created</h4>
+            <div class="tree"><span class="dir">payment-service/</span>
+├── <span class="dir">cmd/</span>
+│   └── <span class="file">main.go</span>                <span class="meta"># entry: load config → open DB → start Echo</span>
+├── <span class="dir">config/</span>
+│   └── <span class="file">config.go</span>              <span class="meta"># env-loaded Config</span>
+├── <span class="dir">internal/</span>
+│   ├── <span class="dir">server/</span>                <span class="meta"># Echo wiring, Providers, route + subscriber registry</span>
+│   ├── <span class="dir">middleware/</span>            <span class="meta"># JWT + error handler</span>
+│   ├── <span class="dir">shared/</span>                <span class="meta"># AppError, response helpers, validator</span>
+│   ├── <span class="dir">events/</span>                <span class="meta"># event bus + event types</span>
+│   └── <span class="dir">infra/database/</span>        <span class="meta"># GORM open + AutoMigrate</span>
+├── <span class="file">.env</span>                       <span class="meta"># copied from .env.example</span>
+├── <span class="file">.env.example</span>
+├── <span class="file">Makefile</span>                   <span class="meta"># dev / build / test / swag / migrate / gen-*</span>
+├── <span class="file">Dockerfile</span>
+├── <span class="file">docker-compose.yml</span>
+└── <span class="file">README.md</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ new-feature ══ -->
+      <section id="cmd-feature">
+        <h2 class="section-title"><span class="icon">🧩</span> goplate new-feature</h2>
+        <p class="section-intro">Generates the eleven-file shape that constitutes a feature in goplate's hexagonal layout. Run from inside a project (the directory containing <code>go.mod</code>).</p>
+
+        <div class="cmd-card">
+          <div class="cmd-card-body">
+            <div class="cmd-syntax">goplate new-feature &lt;name&gt; --fields "&lt;dsl&gt;" [--no-auth] [--no-pagination] [--dry-run]</div>
+
+            <table>
+              <thead><tr><th>Flag</th><th>Default</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td><code>--fields</code>, <code>-f</code></td><td>(required)</td><td>Comma-separated model fields. See the <a href="#dsl-fields" style="color:var(--accent)">Field DSL</a>.</td></tr>
+                <tr><td><code>--no-auth</code></td><td><code>false</code></td><td>Omit JWT middleware from generated routes.</td></tr>
+                <tr><td><code>--no-pagination</code></td><td><code>false</code></td><td>Skip <code>?page=&amp;limit=</code> on the List endpoint.</td></tr>
+                <tr><td><code>--dry-run</code></td><td><code>false</code></td><td>Preview without writing.</td></tr>
+              </tbody>
+            </table>
+
+            <h4>Example</h4>
+            <pre><code><span class="prompt">$ </span><span class="cmd">goplate new-feature</span> <span class="arg">product</span> <span class="flag">--fields</span> <span class="arg">"name:string,price:float64,stock:int,active:bool"</span>
+<span class="out">  ✓  internal/features/product/model.go</span>
+<span class="out">  ✓  internal/features/product/dto.go</span>
+<span class="out">  ✓  internal/features/product/repository.go</span>
+<span class="out">  ✓  internal/features/product/repository_mysql.go</span>
+<span class="out">  ✓  internal/features/product/service.go</span>
+<span class="out">  ✓  internal/features/product/service_impl.go</span>
+<span class="out">  ✓  internal/features/product/handler.go</span>
+<span class="out">  ✓  internal/features/product/module.go</span>
+<span class="out">  ✓  internal/features/product/service_impl_test.go</span>
+<span class="out">  ✓  internal/features/product/handler_test.go</span>
+<span class="out">  ✓  internal/features/product/repository_mysql_test.go</span>
+<span class="out"></span>
+<span class="out">  Next steps:</span>
+<span class="out">    1. Add product.Register(api, p) in internal/server/server.go</span>
+<span class="out">    2. Add &product.Product{} to internal/infra/database/migrate.go</span>
+<span class="out">    3. Run: make swag && make test</span></code></pre>
+
+            <h4>Routes registered</h4>
+            <pre><code><span class="type">GET</span>    /api/products        <span class="comment">→ List   (paginated unless --no-pagination, JWT-protected unless --no-auth)</span>
+<span class="type">POST</span>   /api/products        <span class="comment">→ Create (JWT-protected unless --no-auth)</span>
+<span class="type">GET</span>    /api/products/:id    <span class="comment">→ GetByID</span>
+<span class="type">PATCH</span>  /api/products/:id    <span class="comment">→ Update (JWT-protected unless --no-auth)</span>
+<span class="type">DELETE</span> /api/products/:id    <span class="comment">→ Delete (JWT-protected unless --no-auth)</span></code></pre>
+
+            <div class="callout callout-warning">
+              <span class="callout-icon">⚠️</span>
+              <p><strong>Manual wiring required.</strong> After generation, add <code>product.Register(api, p)</code> in <code>internal/server/features.go</code> and append <code>&amp;product.Product{}</code> to the models slice in <code>internal/infra/database/migrate.go</code>. The CLI prints both lines.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ new-adapter ══ -->
+      <section id="cmd-adapter">
+        <h2 class="section-title"><span class="icon">🔌</span> goplate new-adapter</h2>
+        <p class="section-intro">Generates a port (interface) and a concrete provider implementation under <code>internal/adapters/&lt;service&gt;/</code>. Re-running for a second provider AST-merges new methods into the existing port without losing your edits.</p>
+
+        <div class="cmd-card">
+          <div class="cmd-card-body">
+            <div class="cmd-syntax">goplate new-adapter &lt;service&gt; &lt;provider&gt; --methods "&lt;dsl&gt;" [--stub-siblings] [--dry-run]</div>
+
+            <table>
+              <thead><tr><th>Flag</th><th>Default</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td><code>--methods</code>, <code>-m</code></td><td>(required)</td><td>Method names or full Go signatures. See the <a href="#dsl-methods" style="color:var(--accent)">Methods DSL</a>.</td></tr>
+                <tr><td><code>--stub-siblings</code></td><td><code>false</code></td><td>When the new run adds methods to an existing port, auto-append <code>panic("not implemented")</code> stubs to every sibling provider's <code>adapter.go</code> so the project keeps compiling.</td></tr>
+                <tr><td><code>--dry-run</code></td><td><code>false</code></td><td>Preview without writing.</td></tr>
+              </tbody>
+            </table>
+
+            <h4>Example — fresh adapter</h4>
+            <pre><code><span class="prompt">$ </span><span class="cmd">goplate new-adapter</span> <span class="arg">payment</span> <span class="arg">stripe</span> <span class="flag">--methods</span> <span class="arg">"CreateCharge(req ChargeRequest) (*ChargeResponse, error); RefundCharge(id string) error"</span>
+<span class="out">  ✓  internal/adapters/payment/port.go</span>
+<span class="out">  ✓  internal/adapters/payment/stripe/adapter.go</span>
+<span class="out">  ✓  internal/adapters/payment/stripe/adapter_test.go</span></code></pre>
+
+            <h4>Example — adding a second provider</h4>
+            <p>When <code>port.go</code> already exists, the run is smart:</p>
+            <ul>
+              <li><strong>Same methods as existing port</strong> → port.go untouched, only new provider files written.</li>
+              <li><strong>New methods extend the interface</strong> → port.go is AST-merged (✎), existing provider stubs need updating (warning printed; pass <code>--stub-siblings</code> to auto-stub).</li>
+              <li><strong>Same provider re-run</strong> → refused with a clear error (won't clobber your hand-edits).</li>
+            </ul>
+            <pre><code><span class="prompt">$ </span><span class="cmd">goplate new-adapter</span> <span class="arg">payment</span> <span class="arg">paypal</span> \
+    <span class="flag">--methods</span> <span class="arg">"CreateCharge(req ChargeRequest) (*ChargeResponse, error); ListCharges(ctx context.Context) ([]ChargeResponse, error)"</span> \
+    <span class="flag">--stub-siblings</span>
+<span class="out">  ✎  internal/adapters/payment/port.go</span>
+<span class="out">  ✎  internal/adapters/payment/stripe/adapter.go     # ListCharges panic stub appended</span>
+<span class="out">  ✓  internal/adapters/payment/paypal/adapter.go</span>
+<span class="out">  ✓  internal/adapters/payment/paypal/adapter_test.go</span></code></pre>
+
+            <div class="callout callout-info">
+              <span class="callout-icon">ℹ️</span>
+              <p><strong>Marker glossary.</strong> <code>✓</code> = created. <code>✎</code> = replaced (AST-merge or stub-append). <code>↻</code> = idempotent skip (already declared).</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ new-event ══ -->
+      <section id="cmd-event">
+        <h2 class="section-title"><span class="icon">📡</span> goplate new-event</h2>
+        <p class="section-intro">Registers a domain event constant + payload struct, and optionally scaffolds a subscriber in a target feature. Idempotent: re-running with an already-declared event is a no-op.</p>
+
+        <div class="cmd-card">
+          <div class="cmd-card-body">
+            <div class="cmd-syntax">goplate new-event &lt;EventName&gt; [--payload "p:T,..."] [--subscriber feature] [--dry-run]</div>
+
+            <table>
+              <thead><tr><th>Flag</th><th>Default</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td><code>--payload</code>, <code>-p</code></td><td>(none)</td><td>Comma-separated payload fields, same DSL as <code>--fields</code>. Empty → an empty payload struct.</td></tr>
+                <tr><td><code>--subscriber</code>, <code>-s</code></td><td>(none)</td><td>Feature that handles this event. Creates or updates <code>internal/features/&lt;feature&gt;/subscribers.go</code>.</td></tr>
+                <tr><td><code>--dry-run</code></td><td><code>false</code></td><td>Preview without writing.</td></tr>
+              </tbody>
+            </table>
+
+            <h4>Constant naming</h4>
+            <p>The event-name PascalCase identifier is converted to a dotted lowercase topic:</p>
+            <table>
+              <thead><tr><th>EventName</th><th>Topic constant</th></tr></thead>
+              <tbody>
+                <tr><td><code>OrderPlaced</code></td><td><code>"order.placed"</code></td></tr>
+                <tr><td><code>PaymentFailed</code></td><td><code>"payment.failed"</code></td></tr>
+                <tr><td><code>APIKeyRotated</code></td><td><code>"api.key.rotated"</code></td></tr>
+              </tbody>
+            </table>
+
+            <h4>Example</h4>
+            <pre><code><span class="prompt">$ </span><span class="cmd">goplate new-event</span> <span class="arg">OrderPlaced</span> \
+    <span class="flag">--payload</span> <span class="arg">"OrderID:uint,UserID:uint,TotalAmount:float64"</span> \
+    <span class="flag">--subscriber</span> <span class="arg">notification</span>
+<span class="out">  ✓  internal/events/event_types.go</span>
+<span class="out">  ✓  internal/features/notification/subscribers.go</span></code></pre>
+
+            <p>On re-run with the same event name, the CLI prints <code>↻  ... already declared — left as-is</code> for both files and exits zero. On a new event with the same subscriber, the existing <code>RegisterSubscribers</code> function gets the new Subscribe block spliced into its body — your existing handlers stay intact.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ Field DSL ══ -->
+      <section id="dsl-fields">
+        <h2 class="section-title"><span class="icon">🔤</span> Field DSL</h2>
+        <p class="section-intro">Used by <code>--fields</code> (new-feature) and <code>--payload</code> (new-event). Format: <code>name:type,name:type,...</code></p>
+
+        <h3>Supported types</h3>
+        <p>Each type maps to specific GORM, validator, and Swagger tags. The mapping is the single source of truth — change a type, change all three tags.</p>
+        <table>
+          <thead><tr><th>DSL type</th><th>Go type</th><th>GORM tag</th><th>Validator tag</th><th>Swagger</th></tr></thead>
+          <tbody>
+            <tr><td><code>string</code></td><td><code>string</code></td><td><code>not null;size:255</code></td><td><code>required,min=2,max=255</code></td><td>string</td></tr>
+            <tr><td><code>int</code> / <code>int64</code> / <code>uint</code></td><td>(same)</td><td><code>default:0</code></td><td><code>min=0</code></td><td>integer</td></tr>
+            <tr><td><code>float64</code></td><td><code>float64</code></td><td><code>not null</code></td><td><code>required,gt=0</code></td><td>number</td></tr>
+            <tr><td><code>bool</code></td><td><code>bool</code></td><td><code>default:true</code></td><td>(none)</td><td>boolean</td></tr>
+            <tr><td><code>time.Time</code></td><td><code>time.Time</code></td><td><code>not null</code></td><td><code>required</code></td><td>string</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Examples</h3>
+        <pre><code><span class="comment"># Product with a price and a stock count</span>
+<span class="flag">--fields</span> <span class="arg">"name:string,price:float64,stock:int,active:bool"</span>
+
+<span class="comment"># Event with a timestamp — generated code automatically imports "time"</span>
+<span class="flag">--payload</span> <span class="arg">"orderID:uint,occurredAt:time.Time"</span></code></pre>
+
+        <h3>Naming rules</h3>
+        <ul>
+          <li>Field names may be <code>camelCase</code>, <code>snake_case</code>, or <code>PascalCase</code> — they're normalised to PascalCase for the Go identifier and camelCase for the JSON tag.</li>
+          <li>Common acronyms (<code>id</code>, <code>url</code>, <code>api</code>, <code>json</code>, <code>http</code>, <code>uuid</code>) are preserved as ALL-CAPS in PascalCase: <code>user_id</code> → <code>UserID</code>.</li>
+          <li>Internal capitals are preserved: <code>occurredAt</code> → <code>OccurredAt</code> (not <code>Occurredat</code>).</li>
+        </ul>
+      </section>
+
+      <!-- ══ Methods DSL ══ -->
+      <section id="dsl-methods">
+        <h2 class="section-title"><span class="icon">⚙️</span> Methods DSL</h2>
+        <p class="section-intro">Used by <code>--methods</code> on <code>new-adapter</code>. Auto-detects between two input forms based on whether the spec contains an open paren.</p>
+
+        <h3>Form 1 — names only</h3>
+        <p>Plain comma-separated PascalCase identifiers. Each becomes <code>Name(ctx context.Context) error</code>.</p>
+        <pre><code><span class="flag">--methods</span> <span class="arg">"Send,SendBulk,Receive"</span></code></pre>
+        <p>Generated interface:</p>
+        <pre><code><span class="kw">type</span> <span class="type">SmsGateway</span> <span class="kw">interface</span> {
+    Send(ctx <span class="type">context.Context</span>) <span class="type">error</span>
+    SendBulk(ctx <span class="type">context.Context</span>) <span class="type">error</span>
+    Receive(ctx <span class="type">context.Context</span>) <span class="type">error</span>
+}</code></pre>
+
+        <h3>Form 2 — full Go signatures</h3>
+        <p>Any valid Go interface-method signature is accepted. Separate methods with <code>;</code> (commas would conflict with parameter lists).</p>
+        <pre><code><span class="flag">--methods</span> <span class="arg">"CreateCharge(req ChargeRequest) (*ChargeResponse, error); RefundCharge(id string) error; ListCharges(ctx context.Context) ([]ChargeResponse, error)"</span></code></pre>
+
+        <p>Behaviour:</p>
+        <ul>
+          <li>Stdlib packages referenced via selectors (<code>context.Context</code>, <code>io.Reader</code>, <code>time.Time</code>) are automatically added to the port's import block.</li>
+          <li>Unqualified PascalCase types (<code>ChargeRequest</code>) are treated as user-defined and given <code>type X struct{}</code> placeholder stubs at the bottom of <code>port.go</code> for you to flesh out.</li>
+          <li>In the provider's <code>adapter.go</code>, local types are automatically qualified with the service package — <code>ChargeRequest</code> becomes <code>payment.ChargeRequest</code> in the receiver method signature.</li>
+        </ul>
+
+        <div class="callout callout-tip">
+          <span class="callout-icon">💡</span>
+          <p><strong>Validation comes free.</strong> Form 2 is parsed via <code>go/parser</code>. If your signature is malformed, Go's parser gives you the exact line/column with a helpful message — no custom DSL parser to learn.</p>
+        </div>
+      </section>
+
+      <!-- ══ Architecture ══ -->
+      <section id="architecture">
+        <h2 class="section-title"><span class="icon">🏗️</span> Architecture</h2>
+        <p class="section-intro">Generated projects follow <strong>Folder-by-Feature + Ports &amp; Adapters (Hexagonal Architecture)</strong>. The generator refuses to produce code that violates the dependency direction.</p>
+
+        <h3>Dependency direction</h3>
+        <pre><code><span class="type">HTTP Request</span>
+    ↓
+<span class="kw">handler.go</span>         <span class="comment">// parse input, call service, return JSON</span>
+    ↓
+<span class="kw">service.go</span>         <span class="comment">// interface — the DI boundary</span>
+    ↓
+<span class="kw">service_impl.go</span>    <span class="comment">// pure business logic — no HTTP, no DB</span>
+    ↓
+<span class="kw">repository.go</span>      <span class="comment">// interface — the DB boundary</span>
+    ↓
+<span class="kw">repository_mysql.go</span><span class="comment">// GORM queries only</span>
+    ↓
+<span class="type">DB (mysql / postgres / sqlite)</span>
+
+<span class="comment">// External services use the adapter pattern</span>
+<span class="kw">service_impl.go</span> → <span class="kw">adapters/&lt;service&gt;/port.go</span> → <span class="kw">adapters/&lt;service&gt;/&lt;provider&gt;/adapter.go</span></code></pre>
+
+        <div class="callout callout-info">
+          <span class="callout-icon">ℹ️</span>
+          <p><strong>Golden rule.</strong> A feature package may import an adapter's <em>port</em> (interface) but never a concrete provider package (<code>stripe</code>, <code>paypal</code>, …). Concrete wiring happens only in <code>cmd/main.go</code> and the <code>Providers</code> struct.</p>
+        </div>
+
+        <h3>Conventions</h3>
+        <table>
+          <thead><tr><th>Element</th><th>Convention</th></tr></thead>
+          <tbody>
+            <tr><td>Package names</td><td>lowercase, no underscores (<code>user</code>, <code>stripe</code>)</td></tr>
+            <tr><td>Interface names</td><td>plain nouns (<code>UserService</code>, <code>PaymentGateway</code>)</td></tr>
+            <tr><td>Constructors</td><td><code>New&lt;Type&gt;</code>, returning the interface</td></tr>
+            <tr><td>Event constants</td><td><code>EntityAction</code> PascalCase → <code>"entity.action"</code> topic</td></tr>
+            <tr><td>Errors</td><td><code>shared.ErrNotFound</code> / <code>ErrBadRequest</code> / <code>ErrForbidden</code> / <code>ErrConflict</code> — never raw <code>errors.New</code> in services</td></tr>
+            <tr><td>Responses</td><td><code>shared.OK(data)</code> / <code>shared.Created(data)</code> — never raw <code>c.JSON</code> in handlers</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ══ Workflows ══ -->
+      <section id="workflows">
+        <h2 class="section-title"><span class="icon">🔄</span> End-to-end workflows</h2>
+
+        <h3>Bootstrap → first feature</h3>
+        <pre><code><span class="prompt">$ </span><span class="cmd">goplate new</span> <span class="arg">order-service</span> <span class="flag">--module</span> <span class="arg">github.com/acme/order-service</span>
+<span class="prompt">$ </span><span class="cmd">cd order-service</span>
+<span class="prompt">$ </span><span class="cmd">docker compose up -d db</span>          <span class="comment"># or skip for --db=sqlite</span>
+
+<span class="prompt">$ </span><span class="cmd">goplate new-feature</span> <span class="arg">order</span> <span class="flag">--fields</span> <span class="arg">"total:float64,status:string"</span>
+
+<span class="comment"># Wire it up (CLI printed the exact lines):</span>
+<span class="comment">#   1. internal/server/features.go → add: order.Register(api, p)</span>
+<span class="comment">#   2. internal/infra/database/migrate.go → add: &order.Order{}</span>
+
+<span class="prompt">$ </span><span class="cmd">make swag</span>                            <span class="comment"># regenerate Swagger</span>
+<span class="prompt">$ </span><span class="cmd">make test</span>                            <span class="comment"># verify generated tests pass</span>
+<span class="prompt">$ </span><span class="cmd">make dev</span>                             <span class="comment"># start with hot reload</span></code></pre>
+
+        <h3>Add a payment provider (later, you add a second one)</h3>
+        <pre><code><span class="comment"># First provider — fresh port + adapter</span>
+<span class="prompt">$ </span><span class="cmd">goplate new-adapter</span> <span class="arg">payment</span> <span class="arg">stripe</span> <span class="flag">--methods</span> <span class="arg">"CreateCharge(req ChargeRequest) (*ChargeResponse, error)"</span>
+
+<span class="comment"># Wire in cmd/main.go + Providers struct (CLI printed the lines).</span>
+<span class="comment"># Implement stripe/adapter.go with real Stripe SDK calls.</span>
+
+<span class="comment"># Months later — add PayPal with the same interface. port.go is untouched.</span>
+<span class="prompt">$ </span><span class="cmd">goplate new-adapter</span> <span class="arg">payment</span> <span class="arg">paypal</span> <span class="flag">--methods</span> <span class="arg">"CreateCharge(req ChargeRequest) (*ChargeResponse, error)"</span>
+
+<span class="comment"># Even later — PayPal needs ListCharges. Auto-stub stripe so the build stays green.</span>
+<span class="prompt">$ </span><span class="cmd">goplate new-adapter</span> <span class="arg">payment</span> <span class="arg">paypal</span> \
+    <span class="flag">--methods</span> <span class="arg">"CreateCharge(req ChargeRequest) (*ChargeResponse, error); ListCharges(ctx context.Context) ([]ChargeResponse, error)"</span> \
+    <span class="flag">--stub-siblings</span></code></pre>
+
+        <h3>Domain events</h3>
+        <pre><code><span class="comment"># Register the event with a notification-feature subscriber</span>
+<span class="prompt">$ </span><span class="cmd">goplate new-event</span> <span class="arg">OrderPlaced</span> \
+    <span class="flag">--payload</span> <span class="arg">"OrderID:uint,UserID:uint,TotalAmount:float64"</span> \
+    <span class="flag">--subscriber</span> <span class="arg">notification</span>
+
+<span class="comment"># Publish from order/service_impl.go:</span>
+s.eventBus.Publish(events.<span class="type">OrderPlaced</span>, events.<span class="type">OrderPlacedPayload</span>{
+    OrderID:     order.ID,
+    UserID:      order.UserID,
+    TotalAmount: order.Total,
+})</code></pre>
+      </section>
+
+      <!-- ══ Troubleshooting ══ -->
+      <section id="troubleshooting">
+        <h2 class="section-title"><span class="icon">🛠️</span> Troubleshooting</h2>
+
+        <h3>"not inside a Go module"</h3>
+        <p>Generator commands (<code>new-feature</code>, <code>new-adapter</code>, <code>new-event</code>) must run from a project root or any descendant directory — they walk up looking for <code>go.mod</code>. If you see this, you're outside a Go module entirely. Run <code>goplate new &lt;name&gt;</code> first, or <code>cd</code> into an existing project.</p>
+
+        <h3>"refusing to overwrite existing files"</h3>
+        <p>The generator never silently clobbers user-edited code. Delete the listed files (or pick a different feature/provider name) and re-run. For adapters specifically, this only fires when the <em>same provider</em> is run twice — adding a new provider to an existing service is always allowed.</p>
+
+        <h3>"port.go gained new methods — existing providers must implement them"</h3>
+        <p>You ran <code>new-adapter</code> with a richer <code>--methods</code> set than the existing port. Two options:</p>
+        <ul>
+          <li>Re-run with <code>--stub-siblings</code> to auto-append <code>panic("not implemented")</code> stubs to every sibling provider's <code>adapter.go</code>.</li>
+          <li>Manually update each sibling provider to implement the new methods.</li>
+        </ul>
+
+        <h3>Generated tests reference packages that don't exist yet</h3>
+        <p>The feature templates expect <code>internal/shared</code>, <code>internal/server</code>, <code>internal/middleware</code>, and <code>internal/events</code> to exist in your project (they're scaffolded by <code>goplate new</code>). If you adopted goplate into an existing project, you'll need to create those packages — see the embedded boilerplate's structure for reference.</p>
+
+        <h3>Building from source on a fresh machine fails at <code>go mod tidy</code></h3>
+        <p>Likely a network issue or a corporate proxy. Use <code>GOPROXY=direct</code>, or pass <code>--skip-tidy</code> to <code>goplate new</code> and run tidy later when you're back online.</p>
+
+        <h3>Where can I see what would be generated without writing files?</h3>
+        <p>Every generator command supports <code>--dry-run</code>. The dry-run output is byte-identical to what would land on disk, so you can pipe it through <code>diff</code> or just inspect visually.</p>
+      </section>
+
+      <footer class="footer">
+        <span>goplate User Guide</span>
+        <span>github.com/haivh2111/goplate</span>
+      </footer>
+
+    </main>
+  </div>
+
+  <script>
+    // Highlight the active sidebar link as the user scrolls.
+    const sections = document.querySelectorAll('section[id]');
+    const links    = document.querySelectorAll('.nav-link');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    sections.forEach(s => observer.observe(s));
+  </script>
+</body>
+</html>

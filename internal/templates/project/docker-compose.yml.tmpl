@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+{{- if eq .DBDriver "mysql"}}
+  db:
+    image: mysql:8
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: {{.ProjectName}}
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+{{- else if eq .DBDriver "postgres"}}
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: {{.ProjectName}}
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+{{- end}}
+
+{{- if ne .DBDriver "sqlite"}}
+volumes:
+  dbdata:
+{{- end}}

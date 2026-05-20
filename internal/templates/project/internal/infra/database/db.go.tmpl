@@ -1,0 +1,27 @@
+// Package database opens the GORM connection configured by config.Config.
+package database
+
+import (
+{{- if ne .DBDriver "sqlite"}}
+	"fmt"
+
+{{end}}	"gorm.io/driver/{{.DBDriver}}"
+	"gorm.io/gorm"
+
+	"{{.ModulePath}}/config"
+)
+
+// Open returns a *gorm.DB configured for the {{.DBDriver}} driver.
+func Open(cfg *config.Config) (*gorm.DB, error) {
+{{- if eq .DBDriver "sqlite"}}
+	return gorm.Open(sqlite.Open(cfg.DB.Path), &gorm.Config{})
+{{- else if eq .DBDriver "mysql"}}
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		cfg.DB.User, cfg.DB.Password, cfg.DB.Host, cfg.DB.Port, cfg.DB.Name)
+	return gorm.Open(mysql.Open(dsn), &gorm.Config{})
+{{- else if eq .DBDriver "postgres"}}
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC",
+		cfg.DB.Host, cfg.DB.User, cfg.DB.Password, cfg.DB.Name, cfg.DB.Port)
+	return gorm.Open(postgres.Open(dsn), &gorm.Config{})
+{{- end}}
+}

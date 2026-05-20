@@ -1,0 +1,22 @@
+# Binaries
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Tests + coverage
+*.test
+*.out
+coverage.html
+
+# Env files (never commit secrets)
+.env
+*.local.env
+
+# IDE
+.vscode/
+.idea/
+
+# Build cache
+vendor/

@@ -1,0 +1,17 @@
+package {{.Service}}
+
+{{if .RequiredImports}}import (
+{{range $pkg := .RequiredImports}}	"{{$pkg}}"
+{{end}})
+{{end}}
+
+// {{.ServicePascal}}Gateway is the port that features depend on for the
+// {{.Service}} integration. Features import only this file — never a concrete
+// provider package under {{.Service}}/<provider>/.
+type {{.ServicePascal}}Gateway interface {
+{{range .Methods}}	{{.Decl}}
+{{end}}}
+{{range .LocalTypeStubs}}
+// TODO: populate fields for {{.}}.
+type {{.}} struct{}
+{{end}}

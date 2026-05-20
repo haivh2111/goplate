@@ -1,0 +1,42 @@
+package server
+
+import (
+	"net/http"
+
+	"github.com/labstack/echo/v4"
+	echomw "github.com/labstack/echo/v4/middleware"
+	"gorm.io/gorm"
+
+	"{{.ModulePath}}/config"
+	"{{.ModulePath}}/internal/events"
+	"{{.ModulePath}}/internal/middleware"
+	"{{.ModulePath}}/internal/shared"
+)
+
+// Build constructs the HTTP server, registers feature routes and event
+// subscribers, and returns the configured *echo.Echo ready to Start().
+func Build(cfg *config.Config, db *gorm.DB) (*echo.Echo, error) {
+	e := echo.New()
+	e.HideBanner = true
+	e.Validator = shared.Validator{}
+	e.HTTPErrorHandler = middleware.ErrorHandler
+
+	e.Use(echomw.Logger())
+	e.Use(echomw.Recover())
+
+	p := &Providers{
+		DB:       db,
+		EventBus: events.NewBus(),
+	}
+
+	api := e.Group("/api")
+	api.GET("/health", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, shared.OK(map[string]string{"status": "ok"}))
+	})
+
+	RegisterFeatures(api, p)
+	RegisterSubscribers(p)
+
+	_ = cfg // reserved for additional wiring (CORS, rate limit, ...)
+	return e, nil
+}

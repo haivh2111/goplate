@@ -1,0 +1,19 @@
+package {{.Subscriber}}
+
+import (
+	"{{.ModulePath}}/internal/events"
+	"{{.ModulePath}}/internal/server"
+)
+
+// RegisterSubscribers wires this feature's event-bus handlers. Called from
+// internal/server/subscribers.go during application startup.
+func RegisterSubscribers(p *server.Providers) {
+	p.EventBus.Subscribe(events.{{.EventName}}, func(payload any) {
+		data, ok := payload.(events.{{.EventName}}Payload)
+		if !ok {
+			return
+		}
+		// TODO: handle {{.EventName}}
+		_ = data
+	})
+}

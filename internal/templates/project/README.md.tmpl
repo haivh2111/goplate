@@ -1,0 +1,42 @@
+# {{.ProjectName}}
+
+Generated from the `goplate` boilerplate. Echo + GORM + hexagonal architecture.
+
+## Quick start
+
+```bash
+cp .env.example .env       # then edit DB_*, JWT_SECRET, ...
+make dev                   # hot-reload server (requires air)
+```
+
+## Make targets
+
+| Target              | Purpose                                           |
+|---------------------|---------------------------------------------------|
+| `make dev`          | Run the server with hot reload (air)              |
+| `make build`        | Compile binary into `bin/api`                     |
+| `make test`         | Run the full test suite with -race                |
+| `make coverage`     | Generate `coverage.html`                          |
+| `make lint`         | Run `golangci-lint`                               |
+| `make swag`         | Regenerate Swagger annotations into `swagger/`    |
+| `make migrate`      | Run GORM `AutoMigrate`                            |
+| `make gen-feature`  | Scaffold a new feature (see `goplate new-feature --help`) |
+| `make gen-adapter`  | Scaffold a new adapter                            |
+| `make gen-event`    | Register a domain event                           |
+
+## Layout
+
+```
+cmd/                       # main entry
+config/                    # env-loaded Config
+internal/
+  server/                  # Echo wiring, Providers, subscribers
+  middleware/              # JWT + error handler
+  shared/                  # AppError, response helpers, validator
+  events/                  # event bus + event types
+  infra/database/          # GORM open + migrate
+  features/                # business features (one dir per feature)
+  adapters/                # external-service ports + providers
+```
+
+See https://github.com/haivh2111/goplate for the CLI documentation.

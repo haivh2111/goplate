@@ -1,0 +1,22 @@
+# Lightweight CI: vet + race-tests with -short on every push/PR.
+# The full compile-harness tests run as part of the release pipeline.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: true
+      - name: go vet
+        run: go vet ./...
+      - name: go test (short, race)
+        run: go test -short -race -count=1 ./...

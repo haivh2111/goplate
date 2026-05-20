@@ -1,0 +1,14 @@
+package {{.Provider}}
+
+import (
+	"testing"
+
+	"{{.ModulePath}}/internal/adapters/{{.Service}}"
+)
+
+// TestNewAdapter_ImplementsGateway is a compile-time assertion that
+// NewAdapter satisfies the port. Replace with real behavioural tests as
+// the adapter grows.
+func TestNewAdapter_ImplementsGateway(t *testing.T) {
+	var _ {{.Service}}.{{.ServicePascal}}Gateway = NewAdapter()
+}

@@ -1,0 +1,34 @@
+package middleware
+
+import (
+	"errors"
+	"net/http"
+
+	"github.com/labstack/echo/v4"
+
+	"{{.ModulePath}}/internal/shared"
+)
+
+// ErrorHandler maps shared.AppError (and any other error) into the JSON
+// envelope used by API handlers. Wired in server.Build as e.HTTPErrorHandler.
+func ErrorHandler(err error, c echo.Context) {
+	if c.Response().Committed {
+		return
+	}
+	status := http.StatusInternalServerError
+	msg := err.Error()
+
+	var appErr *shared.AppError
+	if errors.As(err, &appErr) {
+		status = appErr.Code
+		msg = appErr.Message
+	}
+	var heErr *echo.HTTPError
+	if errors.As(err, &heErr) {
+		status = heErr.Code
+		if m, ok := heErr.Message.(string); ok {
+			msg = m
+		}
+	}
+	_ = c.JSON(status, shared.Response{Error: msg})
+}

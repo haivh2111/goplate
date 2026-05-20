@@ -1,0 +1,18 @@
+package database
+
+import "gorm.io/gorm"
+
+// AutoMigrate runs GORM's auto-migration over every model registered below.
+//
+// `goplate new-feature` will print instructions to add a line like:
+//
+//	&product.Product{},
+//
+// into the models slice.
+func AutoMigrate(db *gorm.DB) error {
+	models := []any{}
+	if len(models) == 0 {
+		return nil
+	}
+	return db.AutoMigrate(models...)
+}

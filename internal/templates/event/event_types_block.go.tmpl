@@ -1,0 +1,10 @@
+
+// {{.EventName}} is published when {{.EventName | lower}} occurs.
+const {{.EventName}} = "{{.EventTopic}}"
+
+// {{.EventName}}Payload carries data for the {{.EventName}} event.
+type {{.EventName}}Payload struct {
+{{- range .Fields}}
+	{{.Name}} {{.GoType}}
+{{- end}}
+}
